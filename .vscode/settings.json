@@ -5,5 +5,8 @@
 	"renderer_frontend.h": "c",
 	"iosfwd": "c",
 	"tuple": "cpp",
-	"utility": "cpp"
+	"utility": "cpp",
+	"files.associations": {
+		"platform.h": "c"
+	}
 }
