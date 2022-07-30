@@ -7,6 +7,11 @@
 	"tuple": "cpp",
 	"utility": "cpp",
 	"files.associations": {
-		"platform.h": "c"
+		"platform.h": "c",
+		"xmemory": "c",
+		"defines.h": "c",
+		"xstring": "c",
+		"logger.h": "c",
+		"darray.h": "c"
 	}
 }
