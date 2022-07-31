@@ -12,6 +12,7 @@
 		"defines.h": "c",
 		"xstring": "c",
 		"logger.h": "c",
-		"darray.h": "c"
+		"darray.h": "c",
+		"vulkan_platform.h": "c"
 	}
 }

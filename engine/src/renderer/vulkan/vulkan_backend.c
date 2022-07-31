@@ -3,11 +3,14 @@
 #include "vulkan_types.inl"
 #include "vulkan_platform.h"
 #include "vulkan_device.h"
+#include "vulkan_swapchain.h"
 
 #include "core/logger.h"
 #include "core/kstring.h"
 
 #include "containers/darray.h"
+
+#include "platform/platform.h"
 
 // static Vulkan context
 static vulkan_context context;
@@ -18,8 +21,14 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
     const VkDebugUtilsMessengerCallbackDataEXT *callback_data,
     void *user_data);
 
+i32 find_memory_index(u32 type_filter, u32 property_flags);
+
 b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *application_name, struct platform_state *plat_state)
 {
+
+    // Function pointers
+    context.find_memory_index = find_memory_index;
+
     // TODO: custom allocator.
     context.allocator = 0;
 
@@ -36,18 +45,14 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
 
     // Obtain a list of required extensions
     const char **required_extensions = darray_create(const char *);
-    // Generic surface extension
-    darray_push(required_extensions, &VK_KHR_SURFACE_EXTENSION_NAME);
-
-    // Platform-specific extension(s)
-    platform_get_required_extension_names(&required_extensions);
-
+    darray_push(required_extensions, &VK_KHR_SURFACE_EXTENSION_NAME); // Generic surface extension
+    platform_get_required_extension_names(&required_extensions);      // Platform-specific extension(s)
 #if defined(_DEBUG)
-    darray_push(required_extensions, &VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    darray_push(required_extensions, &VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // debug utilities
 
     KDEBUG("Required extensions:");
-    u32 amount = darray_length(required_extensions);
-    for (u32 i = 0; i < amount; ++i)
+    u32 length = darray_length(required_extensions);
+    for (u32 i = 0; i < length; ++i)
     {
         KDEBUG(required_extensions[i]);
     }
@@ -57,10 +62,10 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     create_info.ppEnabledExtensionNames = required_extensions;
 
     // Validation layers.
-    u32 required_validation_layer_count = 0;
     const char **required_validation_layer_names = 0;
+    u32 required_validation_layer_count = 0;
 
-    // If validation should be done, get a list of the required validation layert names
+// If validation should be done, get a list of the required validation layert names
 // and make sure they exist. Validation layers should only be enabled on non-release builds.
 #if defined(_DEBUG)
     KINFO("Validation layers enabled. Enumerating...");
@@ -104,7 +109,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     create_info.ppEnabledLayerNames = required_validation_layer_names;
 
     VK_CHECK(vkCreateInstance(&create_info, context.allocator, &context.instance));
-    KINFO("Vulkan instance created successfully.");
+    KINFO("Vulkan Instance created.");
 
     // Debugger
 #if defined(_DEBUG)
@@ -142,12 +147,34 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
         return FALSE;
     }
 
+    // Swapchain
+    vulkan_swapchain_create(
+        &context,
+        context.framebuffer_width,
+        context.framebuffer_height,
+        &context.swapchain);
+
     KINFO("Vulkan renderer initialized successfully.");
     return TRUE;
 }
 
 void vulkan_renderer_backend_shutdown(renderer_backend *backend)
 {
+    // Destroy in the opposite order of creation.
+
+    // Swapchain
+    vulkan_swapchain_destroy(&context, &context.swapchain);
+
+    KDEBUG("Destroying Vulkan device...");
+    vulkan_device_destroy(&context);
+
+    KDEBUG("Destroying Vulkan surface...");
+    if (context.surface)
+    {
+        vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
+        context.surface = 0;
+    }
+
     KDEBUG("Destroying Vulkan debugger...");
     if (context.debug_messenger)
     {
@@ -197,4 +224,22 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
         break;
     }
     return VK_FALSE;
+}
+
+i32 find_memory_index(u32 type_filter, u32 property_flags)
+{
+    VkPhysicalDeviceMemoryProperties memory_properties;
+    vkGetPhysicalDeviceMemoryProperties(context.device.physical_device, &memory_properties);
+
+    for (u32 i = 0; i < memory_properties.memoryTypeCount; ++i)
+    {
+        // Check each memory type to see if its bit is set to 1.
+        if (type_filter & (1 << i) && (memory_properties.memoryTypes[i].propertyFlags & property_flags) == property_flags)
+        {
+            return i;
+        }
+    }
+
+    KWARN("Unable to find suitable memory type!");
+    return -1;
 }
