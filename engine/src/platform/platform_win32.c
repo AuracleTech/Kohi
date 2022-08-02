@@ -246,6 +246,7 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
         // Notify the OS that erasing will be handled by the application to prevent flicker.
         return 1;
     case WM_CLOSE:
+        // TODO: Fire an event for the application to quit.
         event_context data = {};
         event_fire(EVENT_CODE_APPLICATION_QUIT, 0, data);
         return TRUE;
@@ -255,12 +256,17 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
     case WM_SIZE:
     {
         // Get the updated size.
-        // RECT r;
-        // GetClientRect(hwnd, &r);
-        // u32 width = r.right - r.left;
-        // u32 height = r.bottom - r.top;
+        RECT r;
+        GetClientRect(hwnd, &r);
+        u32 width = r.right - r.left;
+        u32 height = r.bottom - r.top;
 
-        // TODO: Fire an event for window resize.
+        // Fire the event. The application layer should pick this up, but not handle it
+        // as it shouldn be visible to other parts of the application.
+        event_context context;
+        context.data.u16[0] = (u16)width;
+        context.data.u16[1] = (u16)height;
+        event_fire(EVENT_CODE_RESIZED, 0, context);
     }
     break;
     case WM_KEYDOWN:
@@ -282,7 +288,7 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
         i32 x_position = GET_X_LPARAM(l_param);
         i32 y_position = GET_Y_LPARAM(l_param);
 
-        // Pass to the input subsystem.
+        // Pass over to the input subsystem.
         input_process_mouse_move(x_position, y_position);
     }
     break;
@@ -291,7 +297,7 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
         i32 z_delta = GET_WHEEL_DELTA_WPARAM(w_param);
         if (z_delta != 0)
         {
-            // Flatten the input to an OS-independent & mouse hardware independent (-1, 1)
+            // Flatten the input to an OS-independent (-1, 1)
             z_delta = (z_delta < 0) ? -1 : 1;
             input_process_mouse_wheel(z_delta);
         }

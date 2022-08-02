@@ -27,7 +27,7 @@ typedef struct input_state
 static b8 initialized = FALSE;
 static input_state state = {};
 
-void initialize_input()
+void input_initialize()
 {
     kzero_memory(&state, sizeof(input_state));
     initialized = TRUE;

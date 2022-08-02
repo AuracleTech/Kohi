@@ -1,6 +1,5 @@
 #include "vulkan_swapchain.h"
 
-#include "defines.h"
 #include "core/logger.h"
 #include "core/kmemory.h"
 #include "vulkan_device.h"
@@ -45,7 +44,6 @@ b8 vulkan_swapchain_acquire_next_image_index(
     VkFence fence,
     u32 *out_image_index)
 {
-
     VkResult result = vkAcquireNextImageKHR(
         context->device.logical_device,
         swapchain->handle,
@@ -77,7 +75,6 @@ void vulkan_swapchain_present(
     VkSemaphore render_complete_semaphore,
     u32 present_image_index)
 {
-
     // Return the image to the swapchain for presentation.
     VkPresentInfoKHR present_info = {VK_STRUCTURE_TYPE_PRESENT_INFO_KHR};
     present_info.waitSemaphoreCount = 1;
@@ -97,6 +94,9 @@ void vulkan_swapchain_present(
     {
         KFATAL("Failed to present swap chain image!");
     }
+
+    // Increment (and loop) the index.
+    context->current_frame = (context->current_frame + 1) % swapchain->max_frames_in_flight;
 }
 
 void create(vulkan_context *context, u32 width, u32 height, vulkan_swapchain *swapchain)
@@ -142,7 +142,7 @@ void create(vulkan_context *context, u32 width, u32 height, vulkan_swapchain *sw
         &context->device.swapchain_support);
 
     // Swapchain extent
-    if (context->device.swapchain_support.capabilities.currentExtent.width != UINT32_MAX)
+    if (context->device.swapchain_support.capabilities.currentExtent.width != UINT32MAX)
     {
         swapchain_extent = context->device.swapchain_support.capabilities.currentExtent;
     }
@@ -252,6 +252,7 @@ void create(vulkan_context *context, u32 width, u32 height, vulkan_swapchain *sw
 
 void destroy(vulkan_context *context, vulkan_swapchain *swapchain)
 {
+    vkDeviceWaitIdle(context->device.logical_device);
     vulkan_image_destroy(context, &swapchain->depth_attachment);
 
     // Only destroy the views, not the images, since those are owned by the swapchain and are thus
