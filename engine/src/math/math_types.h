@@ -50,12 +50,8 @@ typedef struct vec3_u
 
 typedef union vec4_u
 {
-#if defined(KUSE_SIMD)
-    // Used for SIMD operations.
-    alignas(16) __m128 data;
-#endif
     // An array of x, y, z, w
-    alignas(16) f32 elements[4];
+    f32 elements[4];
     union
     {
         struct
@@ -85,3 +81,8 @@ typedef union vec4_u
 } vec4;
 
 typedef vec4 quat;
+
+typedef union mat4_u
+{
+    f32 data[16];
+} mat4;
