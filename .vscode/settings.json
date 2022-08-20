@@ -13,6 +13,7 @@
 		"xstring": "c",
 		"logger.h": "c",
 		"darray.h": "c",
-		"vulkan_platform.h": "c"
+		"vulkan_platform.h": "c",
+		"vulkan_types.inl": "c"
 	}
 }
