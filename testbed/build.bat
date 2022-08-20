@@ -1,21 +1,24 @@
-REM Build script for testbed
-@ECHO OFF
-SetLocal EnableDelayedExpansion
+@echo OFF
 
-REM Get a list of all the .c files.
-SET cFilenames=
-FOR /R %%f in (*.c) do (
-    SET cFilenames=!cFilenames! %%f
+echo "build.bat of testbed starting"
+
+setlocal EnableDelayedExpansion
+
+echo "getting a list of all the .c files"
+set cFilenames=
+for /R %%f in (*.c) do (
+    set cFilenames=!cFilenames! %%f
 )
 
-REM echo "Files:" %cFilenames%
+echo "files aquired : " %cFilenames%
 
-SET assembly=testbed
-SET compilerFlags=-g 
-REM -Wall -Werror
-SET includeFlags=-Isrc -I../engine/src/
-SET linkerFlags=-L../bin/ -lengine.lib
-SET defines=-D_DEBUG -DKIMPORT
+set assembly=testbed
+set compilerFlags=-g 
+set includeFlags=-Isrc -I../engine/src/
+set linkerFlags=-L../bin/ -lengine.lib
+set defines=-D_DEBUG -DKIMPORT
 
-ECHO "Building %assembly%%..."
+echo "building %assembly%%..."
 clang %cFilenames% %compilerFlags% -o ../bin/%assembly%.exe %defines% %includeFlags% %linkerFlags%
+
+echo "build.bat of testbed completed"

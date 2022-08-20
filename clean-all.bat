@@ -1,14 +1,13 @@
-@ECHO OFF
-REM Clean Everything
+@echo off
 
-ECHO "Cleaning everything..."
+echo clean-all.bat starting
 
-REM Engine
+echo cleaning engine
 make -f "Makefile.engine.windows.mak" clean
-IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
+if %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
 
-REM Testbed
+echo cleaning testbed
 make -f "Makefile.testbed.windows.mak" clean
-IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
+if %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
 
-ECHO "All assemblies cleaned successfully."
+echo clean-all.bat completed

@@ -1,25 +1,13 @@
-@ECHO OFF
-REM Build Everything
+@echo off
 
-ECHO "Building everything..."
+echo build-all.bat starting
 
-
-@REM PUSHD engine
-@REM CALL build.bat
-@REM POPD
-@REM IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
-
-@REM PUSHD testbed
-@REM CALL build.bat
-@REM POPD
-@REM IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
-
-REM Engine
+echo building engine
 make -f "Makefile.engine.windows.mak" all
-IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
+if %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
 
-REM Testbed
+echo building testbed
 make -f "Makefile.testbed.windows.mak" all
-IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
+if %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
 
-ECHO "All assemblies built successfully."
+echo build-all.bat completed.

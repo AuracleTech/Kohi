@@ -20,23 +20,27 @@ all: scaffold compile link
 
 .PHONY: scaffold
 scaffold: # create build directory
-	@echo Scaffolding folder structure...
+	@echo Makefile.testbed.windows.mak scaffold starting
 	-@setlocal enableextensions enabledelayedexpansion && mkdir $(addprefix $(OBJ_DIR), $(DIRECTORIES)) 2>NUL || cd .
-	@echo Done.
+	@echo Makefile.testbed.windows.mak scaffold completed
 
 .PHONY: link
 link: scaffold $(OBJ_FILES) # link
-	@echo Linking $(ASSEMBLY)...
+	@echo Makefile.testbed.windows.mak link starting
+	@echo linking $(ASSEMBLY)...
 	@clang $(OBJ_FILES) -o $(BUILD_DIR)/$(ASSEMBLY)$(EXTENSION) $(LINKER_FLAGS)
+	@echo Makefile.testbed.windows.mak link completed
 
 .PHONY: compile
 compile: #compile .c files
-	@echo Compiling...
+	@echo Makefile.testbed.windows.mak compile starting
 
 .PHONY: clean
 clean: # clean build directory
+	@echo Makefile.testbed.windows.mak clean starting
 	if exist $(BUILD_DIR)\$(ASSEMBLY)$(EXTENSION) del $(BUILD_DIR)\$(ASSEMBLY)$(EXTENSION)
 	rmdir /s /q $(OBJ_DIR)\$(ASSEMBLY)
+	@echo Makefile.testbed.windows.mak clean completed
 
 $(OBJ_DIR)/%.c.o: %.c # compile .c to .c.o object
 	@echo   $<...
