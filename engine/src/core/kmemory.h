@@ -41,3 +41,5 @@ KAPI void *kcopy_memory(void *dest, const void *source, u64 size);
 KAPI void *kset_memory(void *dest, i32 value, u64 size);
 
 KAPI char *get_memory_usage_str();
+
+KAPI u64 get_memory_alloc_count();
