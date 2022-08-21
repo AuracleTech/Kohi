@@ -14,6 +14,10 @@
 		"logger.h": "c",
 		"darray.h": "c",
 		"vulkan_platform.h": "c",
-		"vulkan_types.inl": "c"
+		"vulkan_types.inl": "c",
+		"test_manager.h": "c",
+		"expect.h": "c",
+		"linear_allocator_tests.h": "c",
+		"linear_allocator.h": "c"
 	}
 }
